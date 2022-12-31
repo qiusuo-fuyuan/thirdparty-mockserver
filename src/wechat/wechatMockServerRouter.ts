@@ -4,6 +4,7 @@ import { join } from "path";
 import crypto from 'crypto';
 import { WechatServerResponse, WeChatUserInfo, USER_AUTHORIZATION_STATE } from "./dataType.js";
 import { CHECK_ACCESS_TOKEN_VALIDITY_PATH, REQUEST_ACCESS_TOKEN_PATH, REQUEST_REFRESH_TOKEN_PATH, REQUEST_USER_INFO_PATH } from "./constants.js";
+import logger from "../logger.js";
 
 const accessToken: WechatServerResponse = { 
     access_token:"234ljdflöajflödsafd", 
@@ -83,7 +84,7 @@ weChatMockServerRouter.use("/connect/qrcode/:imageId", function (req: Request, r
 
 
 /**
- * Every time this API is called, the state represents the QR code login session.
+ * Every time this API is called, the uuid represents the QR code login session.
  */
 weChatMockServerRouter.use("/connect/qrconnect", function (req: Request, res: Response) {
   const clientState = req.query.state as string  
@@ -95,7 +96,8 @@ weChatMockServerRouter.use("/connect/qrconnect", function (req: Request, res: Re
       return res.send(err);
     }
 
-    let result = data.replace(/uuid-placeholder/g, `uuid=${sessionUUID}`).replace(/state-placeholder/g, `state=${clientState}`);
+    let result = data.replace(/uuid-placeholder/g, `${sessionUUID}`).replace(/state-placeholder/g, `${clientState}`);
+    logger.info("use link http://localhost:5000/connect/confirm?uuid=" + sessionUUID + " to confirm")
     res.send(result);
   });
 })
