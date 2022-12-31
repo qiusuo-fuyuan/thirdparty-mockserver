@@ -1,8 +1,9 @@
 import express, { Request, Response } from "express";
+import * as fs from 'fs';
 import { join } from "path";
-import { WechatServerResponse, WeChatUserInfo } from "../mockserver/dataType.js";
-import { CHECK_ACCESS_TOKEN_VALIDITY_PATH, REQUEST_ACCESS_TOKEN_PATH, REQUEST_REFRESH_TOKEN_PATH, REQUEST_USER_INFO_PATH } from "../mockserver/weChatConstants.js";
-import { activeAuthorizationSessions, USER_AUTHORIZATION_STATE } from "../mockserver/mockData.js";
+import crypto from 'crypto';
+import { WechatServerResponse, WeChatUserInfo, USER_AUTHORIZATION_STATE } from "./dataType.js";
+import { CHECK_ACCESS_TOKEN_VALIDITY_PATH, REQUEST_ACCESS_TOKEN_PATH, REQUEST_REFRESH_TOKEN_PATH, REQUEST_USER_INFO_PATH } from "./constants.js";
 
 const accessToken: WechatServerResponse = { 
     access_token:"234ljdflöajflödsafd", 
@@ -36,6 +37,8 @@ const wechatUserInfo: WeChatUserInfo = {
   errmsg: null
 }
 
+
+const activeAuthorizationSessions: {[uuid: string]: USER_AUTHORIZATION_STATE } = {}
 
 /*
 user not scanned:  https://lp.open.weixin.qq.com/connect/l/qrconnect?uuid=071ehi0E3VUpGa1j&_=1668318393261 return window.wx_errcode=408;window.wx_code='';
@@ -79,8 +82,22 @@ weChatMockServerRouter.use("/connect/qrcode/:imageId", function (req: Request, r
 })
 
 
+/**
+ * Every time this API is called, the state represents the QR code login session.
+ */
 weChatMockServerRouter.use("/connect/qrconnect", function (req: Request, res: Response) {
-  res.render(join(process.cwd(), "src/assets/html/wechatOpenConnect.html"));    
+  const clientState = req.query.state as string  
+  const sessionUUID = crypto.randomUUID()
+
+  activeAuthorizationSessions[sessionUUID] = USER_AUTHORIZATION_STATE.NOT_SCANNED
+  fs.readFile('src/assets/html/wechatOpenConnect.html', 'utf8', function(err, data) {
+    if (err) {
+      return res.send(err);
+    }
+
+    let result = data.replace(/uuid-placeholder/g, `uuid=${sessionUUID}`).replace(/state-placeholder/g, `state=${clientState}`);
+    res.send(result);
+  });
 })
 
 

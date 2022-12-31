@@ -26,3 +26,9 @@ export type WeChatAuthorizationSessionData = {
     refreshToken?: string
     openId?: string
 }
+
+export enum USER_AUTHORIZATION_STATE {
+    NOT_SCANNED,
+    SCANNED,
+    CONFIRMED
+}

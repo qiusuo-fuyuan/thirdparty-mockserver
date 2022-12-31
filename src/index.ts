@@ -1,9 +1,9 @@
 import express  from 'express';
-
 import http from 'http';
-import weChatMockServerRouter from './router/wechatMockServerRouter.js';
+import weChatMockServerRouter from './wechat/wechatMockServerRouter.js';
 
 import ejs from 'ejs';
+
 
 /**
  * Here, js ending has to be used, and the problem is reported here.
@@ -14,7 +14,7 @@ import ejs from 'ejs';
  */
 
 
-async function startApolloServer() {
+async function startServer() {
   // Required logic for integrating with Express
   const app = express();
   
@@ -35,4 +35,4 @@ async function startApolloServer() {
 }
 
 
-startApolloServer();
+startServer();
