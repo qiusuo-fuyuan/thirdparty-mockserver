@@ -2,8 +2,21 @@ import express, { Request, Response } from "express";
 import * as fs from 'fs';
 import { join } from "path";
 import crypto from 'crypto';
-import { WechatServerResponse, WeChatUserInfo, USER_AUTHORIZATION_STATE } from "./dataType.js";
-import { CHECK_ACCESS_TOKEN_VALIDITY_PATH, REQUEST_ACCESS_TOKEN_PATH, REQUEST_REFRESH_TOKEN_PATH, REQUEST_USER_INFO_PATH } from "./constants.js";
+import {
+    WechatServerResponse,
+    WeChatUserInfo,
+    USER_AUTHORIZATION_STATE,
+    WechatPayNativeOrderResponse
+} from "./dataType.js";
+import {
+    CHECK_ACCESS_TOKEN_VALIDITY_PATH,
+    REQUEST_ACCESS_TOKEN_PATH,
+    REQUEST_REFRESH_TOKEN_PATH,
+    REQUEST_USER_INFO_PATH,
+    WECHAT_PAY_NATIVE_CLOSE_PATH,
+    WECHAT_PAY_NATIVE_ORDER_PATH,
+    WECHAT_PAY_NATIVE_QUERY_PATH
+} from "./constants.js";
 import logger from "../logger.js";
 
 const accessToken: WechatServerResponse = { 
@@ -36,6 +49,36 @@ const wechatUserInfo: WeChatUserInfo = {
   unionid: "dfadafda",
   errcode: "dfadsdf",
   errmsg: null
+}
+
+const wechatPayNativeOrderResponse: WechatPayNativeOrderResponse = {
+    code_url: "weixin://wxpay/bizpayurl?pr=qnu8GBtzz"
+}
+
+const wechatPayNativeQueryResponse: any = {
+    amount: {
+        "currency": "CNY",
+        "payer_currency": "CNY",
+        "payer_total": 2,
+        "total": 2
+    },
+    attach: "",
+    bank_type: "CMB_DEBIT",
+    out_trade_no: "b3682ea011c547a49e8d7cc93107b71c",
+    payer: {
+        "sp_openid": "o4GgauMQHaUO8ujCGIXNKATQlXXX",
+        "sub_openid": "o4GgauMQHaUO8ujCGIXNKATQlXXX"
+    },
+    promotion_detail: [],
+    sp_appid: "wxdace645e0bc2cXXX",
+    sp_mchid: "1900007XXX",
+    sub_appid: "wxdace645e0bc2cXXX",
+    sub_mchid: "1900008XXX",
+    success_time: "2021-03-03T15:27:14+08:00",
+    trade_state: "SUCCESS",
+    trade_state_desc: "支付成功",
+    trade_type: "JSAPI",
+    transaction_id: "4200000985202103031441826014"
 }
 
 
@@ -137,6 +180,25 @@ weChatMockServerRouter.use(CHECK_ACCESS_TOKEN_VALIDITY_PATH, function (req: Requ
 
 weChatMockServerRouter.use(REQUEST_USER_INFO_PATH, function (req: Request, res: Response) {
   res.json(refreshToken)
+});
+
+weChatMockServerRouter.post(WECHAT_PAY_NATIVE_ORDER_PATH, function (req: Request, res: Response) {
+    res.json(wechatPayNativeOrderResponse)
+});
+
+weChatMockServerRouter.get(WECHAT_PAY_NATIVE_QUERY_PATH, function (req: Request, res: Response) {
+    console.log("QUERY wechat native pay, outTradNo:", req.params.outTradeNo)
+    res.json(wechatPayNativeQueryResponse)
+});
+
+weChatMockServerRouter.post(WECHAT_PAY_NATIVE_CLOSE_PATH, function (req: Request, res: Response) {
+    if (req.params.outTradeNo.length == 0 ||
+        req.body.sp_mchid == null || req.body.sp_mchid.length == 0 ||
+        req.body.sub_mchid == null || req.body.sub_mchid.length == 0) {
+        throw new Error("outTradeNo, sp_machid, sub_mchid should not be empty!");
+    }
+    res.writeHead(204);
+    res.end();
 });
 
 export default weChatMockServerRouter

@@ -1,7 +1,7 @@
 import express  from 'express';
 import http from 'http';
 import weChatMockServerRouter from './wechat/wechatMockServerRouter.js';
-
+import bodyParser from 'body-parser'
 import ejs from 'ejs';
 
 
@@ -25,6 +25,10 @@ async function startServer() {
   // enabling our servers to shut down gracefully.
   const httpServer = http.createServer(app);
 
+  // parse application/x-www-form-urlencoded
+  app.use(bodyParser.urlencoded({ extended: false }))
+  // parse application/json
+  app.use(bodyParser.json())
   app.use("/", weChatMockServerRouter)
 
   // apply alipay router

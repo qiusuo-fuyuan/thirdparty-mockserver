@@ -32,3 +32,7 @@ export enum USER_AUTHORIZATION_STATE {
     SCANNED,
     CONFIRMED
 }
+
+export type WechatPayNativeOrderResponse = {
+    code_url: string
+}
