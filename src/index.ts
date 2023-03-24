@@ -3,6 +3,7 @@ import http from 'http';
 import weChatMockServerRouter from './wechat/wechatMockServerRouter.js';
 
 import ejs from 'ejs';
+import alipayMockServerRouter from './alipay/alipayRouter.js';
 
 
 /**
@@ -25,7 +26,9 @@ async function startServer() {
   // enabling our servers to shut down gracefully.
   const httpServer = http.createServer(app);
 
+  app.use(express.json());
   app.use("/", weChatMockServerRouter)
+  app.use("/payment", alipayMockServerRouter)
 
   // apply alipay router
   
