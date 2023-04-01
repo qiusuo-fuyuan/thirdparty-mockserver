@@ -4,14 +4,15 @@ import { AlipayTradePrecreateRequest, AlipayTradePrecreateResponse } from './dat
   
 const alipayMockServerRouter = express.Router();
 
-
 // Define the route handler for the alipay.trade.precreate API
-alipayMockServerRouter.post('/alipay/trade/precreate',
+alipayMockServerRouter.post('/gateway.do',
   (req: Request<AlipayTradePrecreateRequest>, res: Response<AlipayTradePrecreateResponse>) => {
     // Check for required parameters
-    const { out_trade_no, subject, total_amount } = req.body;
+    
+    const precreateRequest = req.body as AlipayTradePrecreateRequest
+    const { out_trade_no, subject, total_amount } = JSON.parse(precreateRequest.biz_content);
     if (!out_trade_no || !subject || !total_amount) {
-      return res.status(400).send({ code: '40004', msg: 'Missing required parameters' });
+      return res.status(400).send({alipay_trade_precreate_response: { code: '40004', msg: 'Missing required parameters' }});
     }
 
     // Generate a mock QR code URL
@@ -19,13 +20,16 @@ alipayMockServerRouter.post('/alipay/trade/precreate',
 
     // Send a mock response
     res.send({
-      code: '10000',
-      msg: 'Success',
-      out_trade_no: out_trade_no,
-      qr_code: qr_code_url,
-    });
-  }
-);
+      alipay_trade_precreate_response: {
+          code: "10000",
+          msg: "Success",
+          out_trade_no: "6823789339978248",
+          qr_code: qr_code_url,
+          share_code: "chb4n8A94Qc"
+      },
+      sign: "ERITJKEIJKJHKKKKKKKHJEREEEEEEEEEEE"
+  });
+})
 
 // Define the route handler for the mock QR code URL
 alipayMockServerRouter.get('/qrcode/:out_trade_no', (req: Request, res: Response) => {

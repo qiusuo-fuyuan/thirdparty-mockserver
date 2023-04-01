@@ -1,28 +1,21 @@
 // Define the request and response data structures
-export interface AlipayTradePrecreateRequest {
-    out_trade_no: string;
-    subject: string;
-    total_amount: string;
-    timeout_express?: string;
-    seller_id?: string;
-    goods_detail?: object[];
-    body?: string;
-    store_id?: string;
-    disable_pay_channels?: string;
-    enable_pay_channels?: string;
-    terminal_id?: string;
-    extend_params?: object;
-  }
+export type AlipayTradePrecreateRequest = {
+  notify_url: string;
+  biz_content: string
+};
+
   
-export interface AlipayTradePrecreateResponse {
-    code: string;
-    msg: string;
-    sub_code?: string;
-    sub_msg?: string;
+export type AlipayTradePrecreateResponse = {
+  alipay_trade_precreate_response: {
+    code?: string;
+    msg?: string;
     out_trade_no?: string;
     qr_code?: string;
-}
-  
+    share_code?: string;
+  };
+  sign?: string;
+};
+
   
 export interface AlipayPaymentNotifyPayload {
       notify_type: string;

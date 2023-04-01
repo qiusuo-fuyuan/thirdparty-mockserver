@@ -4,7 +4,7 @@ import weChatMockServerRouter from './wechat/wechatMockServerRouter.js';
 
 import ejs from 'ejs';
 import alipayMockServerRouter from './alipay/alipayRouter.js';
-
+import bodyParser from 'body-parser';
 
 /**
  * Here, js ending has to be used, and the problem is reported here.
@@ -26,6 +26,7 @@ async function startServer() {
   // enabling our servers to shut down gracefully.
   const httpServer = http.createServer(app);
 
+  app.use(bodyParser.urlencoded({ extended: false }));
   app.use(express.json());
   app.use("/", weChatMockServerRouter)
   app.use("/payment", alipayMockServerRouter)
